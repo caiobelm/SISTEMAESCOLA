@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es2018",
+    "jsx": "preserve",
+    "noEmit": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "types": ["node", "jest"],
+    "allowJs": true
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,269 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         String
+  status       String    @default("ACTIVE")
+  createdAt    DateTime  @default(now())
+  profile      Profile?
+  student      Student?
+  teacher      Teacher?
+  loans        Loan[]    @relation("LoanBorrower")
+  documents    Document[]
+  notices      Notice[]  @relation("NoticeOwner")
+  auditLogs    AuditLog[]
+}
+
+model Profile {
+  userId    String @id
+  cpf       String
+  phone     String
+  address   String
+  avatarUrl String
+  user      User   @relation(fields: [userId], references: [id])
+}
+
+model Guardian {
+  id       String   @id @default(uuid())
+  name     String
+  phone    String
+  email    String
+  students Student[]
+
+  @@unique([email])
+}
+
+model Student {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  registrationCode String   @unique
+  guardianId       String?
+  status           String
+  user             User     @relation(fields: [userId], references: [id])
+  guardian         Guardian? @relation(fields: [guardianId], references: [id])
+  enrollments      ClassEnrollment[]
+  attendanceItems  AttendanceItem[]
+}
+
+model Teacher {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  siapeMatricula String
+  area           String
+  user           User     @relation(fields: [userId], references: [id])
+  classes        ClassTeacher[]
+  leaves         TeacherLeave[]
+  attendance     AttendanceRecord[]
+}
+
+model Course {
+  id       String   @id @default(uuid())
+  name     String
+  subjects Subject[]
+
+  @@unique([name])
+}
+
+model Subject {
+  id                String            @id @default(uuid())
+  courseId          String
+  name              String
+  workload          Int
+  course            Course            @relation(fields: [courseId], references: [id])
+  schedules         Schedule[]
+  teachers          ClassTeacher[]
+  attendanceRecords AttendanceRecord[]
+
+  @@unique([name])
+}
+
+model SchoolClass {
+  id                String            @id @default(uuid())
+  year              Int
+  grade             String
+  shift             String
+  room              String
+  enrollments       ClassEnrollment[]
+  schedules         Schedule[]
+  attendanceRecords AttendanceRecord[]
+
+  @@unique([room])
+}
+
+model ClassEnrollment {
+  id            String      @id @default(uuid())
+  studentId     String
+  schoolClassId String
+  student       Student     @relation(fields: [studentId], references: [id])
+  schoolClass   SchoolClass @relation(fields: [schoolClassId], references: [id])
+
+  @@unique([studentId, schoolClassId])
+}
+
+model ClassTeacher {
+  id            String      @id @default(uuid())
+  teacherId     String
+  subjectId     String
+  schoolClassId String
+  teacher       Teacher     @relation(fields: [teacherId], references: [id])
+  subject       Subject     @relation(fields: [subjectId], references: [id])
+  schoolClass   SchoolClass @relation(fields: [schoolClassId], references: [id])
+
+  @@unique([teacherId, subjectId, schoolClassId])
+}
+
+model Schedule {
+  id            String      @id @default(uuid())
+  schoolClassId String
+  subjectId     String
+  weekday       Int
+  startTime     DateTime
+  endTime       DateTime
+  schoolClass   SchoolClass @relation(fields: [schoolClassId], references: [id])
+  subject       Subject     @relation(fields: [subjectId], references: [id])
+
+  @@unique([schoolClassId, subjectId, weekday])
+}
+
+model AttendanceRecord {
+  id            String            @id @default(uuid())
+  date          DateTime
+  schoolClassId String
+  subjectId     String
+  teacherId     String
+  status        String
+  schoolClass   SchoolClass       @relation(fields: [schoolClassId], references: [id])
+  subject       Subject           @relation(fields: [subjectId], references: [id])
+  teacher       Teacher           @relation(fields: [teacherId], references: [id])
+  items         AttendanceItem[]
+}
+
+model AttendanceItem {
+  id                 String            @id @default(uuid())
+  attendanceRecordId String
+  studentId          String
+  status             String
+  notes              String
+  attendanceRecord   AttendanceRecord @relation(fields: [attendanceRecordId], references: [id])
+  student            Student          @relation(fields: [studentId], references: [id])
+}
+
+model Work {
+  id        String  @id @default(uuid())
+  title     String
+  author    String
+  publisher String
+  year      Int
+  isbn      String @unique
+  keywords  String
+  coverUrl  String
+  subject   String?
+  copies    Copy[]
+}
+
+model Copy {
+  id        String @id @default(uuid())
+  workId    String
+  code      String @unique
+  condition String
+  shelf     String
+  status    String  @default("AVAILABLE")
+  work      Work   @relation(fields: [workId], references: [id])
+  loans     Loan[]
+}
+
+model Loan {
+  id              String   @id @default(uuid())
+  copyId          String
+  borrowerUserId  String
+  checkoutAt      DateTime
+  dueAt           DateTime
+  returnedAt      DateTime?
+  renewals        Int
+  fineCents       Int
+  copy            Copy   @relation(fields: [copyId], references: [id])
+  borrower        User   @relation("LoanBorrower", fields: [borrowerUserId], references: [id])
+
+  @@unique([copyId, borrowerUserId, returnedAt])
+}
+
+model TeacherLeave {
+  id                    String  @id @default(uuid())
+  teacherId             String
+  startDate             DateTime
+  endDate               DateTime
+  reason                String
+  status                String
+  suggestedSubstituteId String?
+  comments              String?
+  teacher               Teacher @relation(fields: [teacherId], references: [id])
+  files                 TeacherLeaveFile[]
+}
+
+model TeacherLeaveFile {
+  id             String @id @default(uuid())
+  teacherLeaveId String
+  fileUrl        String
+  uploadedAt     DateTime @default(now())
+  leave          TeacherLeave @relation(fields: [teacherLeaveId], references: [id])
+}
+
+model Document {
+  id            String   @id @default(uuid())
+  ownerUserId   String
+  scope         String
+  schoolClassId String?
+  title         String
+  fileUrl       String
+  version       Int
+  createdAt     DateTime @default(now())
+  owner         User     @relation(fields: [ownerUserId], references: [id])
+}
+
+model Notice {
+  id          String   @id @default(uuid())
+  title       String
+  body        String
+  audience    String
+  targetId    String?
+  publishedAt DateTime
+  owner       User?    @relation("NoticeOwner", fields: [targetId], references: [id])
+
+  @@unique([title])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String
+  metadata  Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Setting {
+  id       String @id @default(uuid())
+  key      String @unique
+  valueJson Json
+}
+
+view v_overdue_loans {
+  id         String
+  borrowerId String
+  dueAt      DateTime
+  fineCents  Int
+  status     String
+  @@ignore
+}

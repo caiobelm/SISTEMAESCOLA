@@ -1,0 +1,33 @@
+---
+title: ERD do Sistema Escolar
+---
+```mermaid
+erDiagram
+    USERS ||--o{ PROFILES : "possui"
+    USERS ||--o{ STUDENTS : "referencia"
+    USERS ||--o{ TEACHERS : "referencia"
+    USERS ||--o{ LOANS : "realiza"
+    USERS ||--o{ DOCUMENTS : "envia"
+    USERS ||--o{ AUDIT_LOGS : "gera"
+    STUDENTS }o--|| GUARDIANS : "guardiao"
+    STUDENTS ||--o{ CLASS_ENROLLMENTS : "matricula"
+    STUDENTS ||--o{ ATTENDANCE_ITEMS : "registrado"
+    TEACHERS ||--o{ CLASS_TEACHERS : "atribui"
+    TEACHERS ||--o{ TEACHER_LEAVES : "solicita"
+    TEACHERS ||--o{ ATTENDANCE_RECORDS : "lanca"
+    COURSES ||--o{ SUBJECTS : "oferece"
+    SUBJECTS ||--o{ CLASS_TEACHERS : "ministrada"
+    SUBJECTS ||--o{ SCHEDULES : "agenda"
+    SUBJECTS ||--o{ ATTENDANCE_RECORDS : "registrada"
+    SCHOOL_CLASSES ||--o{ CLASS_ENROLLMENTS : "possui"
+    SCHOOL_CLASSES ||--o{ CLASS_TEACHERS : "aloca"
+    SCHOOL_CLASSES ||--o{ SCHEDULES : "agenda"
+    SCHOOL_CLASSES ||--o{ ATTENDANCE_RECORDS : "referencia"
+    WORKS ||--o{ COPIES : "possui"
+    COPIES ||--o{ LOANS : "emprestimo"
+    LOANS ||--o{ SETTINGS : "usa_regra"
+    TEACHER_LEAVES ||--o{ TEACHER_LEAVE_FILES : "anexo"
+    DOCUMENTS }o--|| SCHOOL_CLASSES : "contexto"
+    NOTICES }o--|| SCHOOL_CLASSES : "segmento"
+    NOTICES }o--|| SUBJECTS : "segmento"
+```
