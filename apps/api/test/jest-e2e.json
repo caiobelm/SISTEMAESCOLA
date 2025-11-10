@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/jest",
+  "displayName": "e2e",
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "rootDir": "../",
+  "moduleFileExtensions": ["ts", "js", "json"],
+  "testMatch": ["<rootDir>/test/e2e/**/*.spec.ts"],
+  "globalSetup": "<rootDir>/test/setup.ts"
+}

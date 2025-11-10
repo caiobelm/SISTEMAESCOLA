@@ -1,0 +1,21 @@
+{
+  "name": "sistemaescola-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:all": "concurrently \"npm run dev --workspace apps/api\" \"npm run dev --workspace apps/web\"",
+    "build": "npm run build --workspace apps/api && npm run build --workspace apps/web",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspace apps/api && npm run test --workspace apps/web",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma migrate deploy",
+    "prisma:seed": "ts-node prisma/seed.ts"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "concurrently": "8.2.2"
+  }
+}

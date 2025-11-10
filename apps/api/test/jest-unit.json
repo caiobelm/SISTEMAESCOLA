@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/jest",
+  "displayName": "unit",
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "rootDir": "../",
+  "moduleFileExtensions": ["ts", "js", "json"],
+  "testMatch": ["<rootDir>/test/unit/**/*.spec.ts"],
+  "moduleNameMapper": {
+    "^@sistemaescola/ui/(.*)$": "<rootDir>/../../packages/ui/src/$1"
+  }
+}
